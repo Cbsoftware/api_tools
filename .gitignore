@@ -1,0 +1,9 @@
+*~
+*.swp
+*.swo
+*.swn
+download_data/data/*
+download_data/conditions/*
+download_data/config.py
+*.pyc
+*-checkpoint.ipynb
