@@ -4,7 +4,7 @@ This script downloads JSON data from the pressureNet data and current conditions
 
 2. `$ python download.py <name of service>`
 
-Where <name of service> is either "conditions" (to access the current conditions API) or "readings" (to access the PressureNet Data API).
+Where &lt;name of service&gt; is either "conditions" (to access the current conditions API) or "readings" (to access the PressureNet Data API).
 
 You may optionally specify the name of the subdirectory you want the data to be stored in, like so: 
 
