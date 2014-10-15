@@ -1,5 +1,6 @@
 apikey = 'qwertyuiopasdfghjklzxcvbnm1234567890'
 
+#download readings starting at this date/time (UTC time)
 startsecond = 0
 startminute = 0
 starthour = 10
@@ -7,6 +8,7 @@ startday = 15
 startmonth = 11
 startyear = 2013
 
+#until this date/time (UTC time)
 endsecond = 0
 endminute = 0
 endhour = 10
@@ -14,12 +16,18 @@ endday = 25
 endmonth = 11
 endyear = 2013
 
+#define geographic limits
 minlat = 48
 maxlat = 49
 
 minlon = 79
 maxlon = 80
 
+#how many seconds to wait in between API calls
 sleepamount = 5
+
+#break timeframe down into calls of this size, in minutes
 mins1 = 360
+
+#in case total timeframe doesn't divide neatly into mins1-sized windows
 mins2 = 60
