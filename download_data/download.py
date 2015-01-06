@@ -94,13 +94,12 @@ def make_call(s, f, data, jobname):
     
     r = attempt(params, data, jobname)
     
-    if r.status_code == 504: #server time-out
+    if r.status_code != 200:
         time.sleep(2*sleepamount)
         print "Retrying"
         r2 = attempt(params, data, jobname)
-        if r2.status_code != 200:
-            logfile = log(r2, s, f, jobname)
-            time.sleep(30)
+        logfile = log(r2, s, f, jobname)
+        time.sleep(30 + sleepamount)
 
     if logfile:
         logfile.close()
