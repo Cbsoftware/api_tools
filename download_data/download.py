@@ -98,8 +98,9 @@ def make_call(s, f, data, jobname):
         time.sleep(2*sleepamount)
         print "Retrying"
         r2 = attempt(params, data, jobname)
-        logfile = log(r2, s, f, jobname)
         time.sleep(30 + sleepamount)
+        if r2.status_code != 200:
+            logfile = log(r2, s, f, jobname)
 
     if logfile:
         logfile.close()
