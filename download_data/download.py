@@ -132,6 +132,7 @@ ftimestamp = ftime.timestamp * 1000
 
 #don't ask for more than 1 day's data at a time
 while ((((ftime - stime).days >= 1) or ((ftime - stime).seconds > (60*mins1))) and (ftimestamp <= origfinish)):
+
     stimestamp = stime.timestamp * 1000
     ftimestamp = stime.replace(seconds=+(60*mins1)).timestamp * 1000
 
