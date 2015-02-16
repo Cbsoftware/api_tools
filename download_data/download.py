@@ -9,13 +9,12 @@ from dateutil.tz import tzutc
 service = 'api/pressure'
 
 #not currently using
-def save_data(data, jobname, origstart, ftime):
+def save_data(data, jobname, starttime):
     dname = 'data'
     make_dirs(jobname)
 
-    fn = os.path.join(dname, jobname, '{starttime}_{endtime}.json'.format(
+    fn = os.path.join(dname, jobname, '{starttime}.json'.format(
             starttime = origstart.format('MMMM-DD-YYYY:HH:mm:ss'),
-             endtime = ftime.format('MMMM-DD-YYYY:HH:mm:ss'),
             ))
 
     print "Data saved to " + fn
@@ -30,13 +29,14 @@ def success(r, data):
 
     return data
 
-def make_call(params, data):
+def make_call(params, data, t):
     r = requests.get('https://pressurenet.io/' + service, params=params)
     print "Request made to " + r.url
     print arrow.get(str(params['timestamp']/1000)).format('MMMM-DD-YYYY:HH:mm:ss')
     print "Status: {}".format(r.status_code)
     if r.status_code == 200:
         data = success(r, data)
+        save_data(data, jobname, t)
 
     return r
 
@@ -50,7 +50,7 @@ t = stime.timestamp * 1000
 data = []
 while(t < endtime):
     params = {'timestamp': t, 'api_key':apikey, 'format':'json'}
-    make_call(params, data)
+    make_call(params, data, t/1000)
     t = arrow.get(t / 1000).replace(seconds=+600).timestamp * 1000
 
 print "finished"
