@@ -34,7 +34,7 @@ def save_data(data, jobname, stime):
           json.dump(data, outfile)
           outfile.close()
 
-def success(r):
+def success(r, data):
     print "{} items downloaded".format(len(r.json()))
 
     if len(r.json()) > 0:
@@ -48,8 +48,7 @@ def make_call(params, data, t, jobname):
     print arrow.get(str(params['timestamp']/1000)).format('MMMM-DD-YYYY:HH:mm:ss')
     print "Status: {}".format(r.status_code)
     if r.status_code == 200:
-        data = success(r)
-        save_data(data, jobname, arrow.get(t))
+        data = success(r, data)
 
     return r
 
@@ -66,4 +65,5 @@ while(t < endtime):
     make_call(params, data, t/1000, jobname)
     t = arrow.get(t / 1000).replace(seconds=+600).timestamp * 1000
 
+save_data(data, jobname, arrow.get(t/1000))
 print "finished"
