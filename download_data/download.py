@@ -21,7 +21,7 @@ def in_bounds(d):
     return (lat >= fminlat) & (lat <= fmaxlat) & (lon >= fminlon) & (lon <= fmaxlon)
 
 def geo_filter(data):
-    return json.loads([d for d in data if in_bounds(d)])
+    return [d for d in data if in_bounds(d)]
 
 def make_dirs(jobname):
     dname = 'data'
@@ -64,7 +64,6 @@ def make_call(params, data, t, jobname):
     if r.status_code == 200:
         data = success(r, data)
         data = geo_filter(data)
-        save_data(data, jobname, arrow.get(t))
 
     return r
 
