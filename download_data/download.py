@@ -18,7 +18,8 @@ def in_bounds(d):
     fmaxlat = float(maxlat)
     fminlon = float(minlon)
     fmaxlon = float(maxlon)
-    return (lat >= fminlat) & (lat <= fmaxlat) & (lon >= fminlon) & (lon <= fmaxlon)
+    ret = (lat >= fminlat) & (lat <= fmaxlat) & (lon >= fminlon) & (lon <= fmaxlon)
+    return ret
 
 def geo_filter(data):
     return [d for d in data if in_bounds(d)]
@@ -63,9 +64,13 @@ def make_call(params, data, t, jobname):
     print "Status: {}".format(r.status_code)
     if r.status_code == 200:
         data = success(r, data)
+        print len(data)
         data = geo_filter(data)
+        print len(data)
+    else:
+        print "an error occurred: " + str(r.status_code)
 
-    return r
+    return data
 
 stime = arrow.get(datetime.datetime(startyear, startmonth, startday, starthour, startminute, startsecond, tzinfo=tzutc()))
 
@@ -77,7 +82,7 @@ t = stime.timestamp * 1000
 data = []
 while(t < endtime):
     params = {'timestamp': t, 'api_key':apikey, 'format':dataformat}
-    make_call(params, data, t/1000, jobname)
+    data = make_call(params, data, t/1000, jobname)
     t = arrow.get(t / 1000).replace(seconds=+600).timestamp * 1000
 
 save_data(data, jobname, stime, etime)
