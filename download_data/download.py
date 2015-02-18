@@ -5,11 +5,23 @@ import os
 import json
 import requests
 import arrow, datetime, time
-from config import apikey, startsecond, startminute, starthour, startday, startmonth, startyear, endsecond, endminute, endhour, endday, endmonth, endyear, sleepamount
+from config import apikey, startsecond, startminute, starthour, startday, startmonth, startyear, endsecond, endminute, endhour, endday, endmonth, endyear, sleepamount, dataformat, minlat, maxlat, minlon, maxlon
 from dateutil.tz import tzutc 
 
 jobname = sys.argv[1]
 service = 'api/pressure'
+
+def in_bounds(d):
+    lat = float(d['latitude'])
+    lon = float(d['longitude'])
+    fminlat = float(minlat)
+    fmaxlat = float(maxlat)
+    fminlon = float(minlon)
+    fmaxlon = float(maxlon)
+    return (lat >= fminlat) & (lat <= fmaxlat) & (lon >= fminlon) & (lon <= fmaxlon)
+
+def geo_filter(data):
+    return json.loads([d for d in data if in_bounds(d)])
 
 def make_dirs(jobname):
     dname = 'data'
@@ -24,8 +36,9 @@ def save_data(data, jobname, stime):
     dname = 'data'
     make_dirs(jobname)
 
-    fn = os.path.join(dname, jobname, '{starttime}.json'.format(
+    fn = os.path.join(dname, jobname, '{starttime}.{ext}'.format(
             starttime = stime.format('MMMM-DD-YYYY:HH:mm:ss'),
+            ext = dataformat
             ))
 
     print "Data saved to " + fn
@@ -49,6 +62,7 @@ def make_call(params, data, t, jobname):
     print "Status: {}".format(r.status_code)
     if r.status_code == 200:
         data = success(r)
+        data = geo_filter(data)
         save_data(data, jobname, arrow.get(t))
 
     return r
@@ -62,7 +76,7 @@ t = stime.timestamp * 1000
 
 data = []
 while(t < endtime):
-    params = {'timestamp': t, 'api_key':apikey, 'format':'json'}
+    params = {'timestamp': t, 'api_key':apikey, 'format':dataformat}
     make_call(params, data, t/1000, jobname)
     t = arrow.get(t / 1000).replace(seconds=+600).timestamp * 1000
 
