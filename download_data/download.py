@@ -12,8 +12,16 @@ from config import apikey, startsecond, startminute, starthour, startday, startm
 #which API to call
 if sys.argv[1] == 'conditions': 
     service = 'conditions/list'
+    minlatkey = 'min_latitude'
+    maxlatkey = 'max_latitude'
+    minlonkey = 'min_longitude'
+    maxlonkey = 'max_longitude'
 elif sys.argv[1] == 'readings':
     service = 'live'
+    minlatkey = 'min_lat'
+    maxlatkey = 'max_lat'
+    minlonkey = 'min_lon'
+    maxlonkey = 'max_lon'
 else:
     print 'Unknown service'
 
@@ -88,8 +96,8 @@ def log(r, s, f, jobname):
 def make_call(s, f, data, jobname):
     logfile = None
     params = {'api_key': apikey, 'start_time': s, 'end_time': f,
-               'min_lat': minlat, 'max_lat': maxlat,
-               'min_lon': minlon, 'max_lon': maxlon 
+               minlatkey: minlat, maxlatkey: maxlat,
+               minlonkey: minlon, maxlonkey: maxlon 
               }
     
     r = attempt(params, data, jobname)
