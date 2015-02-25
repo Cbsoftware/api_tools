@@ -17,12 +17,14 @@ endmonth = 2
 endyear = 2015
 
 #how many seconds to wait in between API calls
-sleepamount = 2
+sleepamount = 1
 
 #format to save data in (either 'json' or 'csv')
 dataformat = 'json'
 
-minlat = 43 
-maxlat = 44
-minlon = -80
-maxlon = -79
+# by default the global set will be saved
+# change these if you want to filter the global data set down to a specific region
+minlat = -90
+maxlat = 90
+minlon = -180
+maxlon = 180
