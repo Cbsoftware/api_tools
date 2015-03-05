@@ -35,7 +35,7 @@ def make_dirs(jobname):
     if not os.path.exists(os.path.join(dname, jobname)):
         os.makedirs(os.path.join(dname, jobname))
 
-def save_data(data, jobname, stime, etime):
+def save_data(data, jobname, stime, etime, dataformat):
     dname = 'data'
     make_dirs(jobname)
 
@@ -48,14 +48,21 @@ def save_data(data, jobname, stime, etime):
     print "Data saved to " + fn
 
     with open(fn, 'w+') as outfile:
-          json.dump(data, outfile)
-          outfile.close()
+          if dataformat == 'json':
+              json.dump(data, outfile)
+	  else:
+              outfile.write(('\n').join(data))              
 
 def success(r, data):
-    print "{} items downloaded".format(len(r.json()))
+    if dataformat == 'json':
+        items = r.json()
+    else:
+        items = r.text.split('\n')
+    
+    print "{} items downloaded".format(len(items))
 
-    if len(r.json()) > 0:
-        data += r.json()
+    if len(items) > 0:
+        data += items
   
     return data
 
@@ -88,5 +95,5 @@ while(t < endtime):
     data = make_call(params, data, t/1000, jobname)
     t = arrow.get(t / 1000).replace(seconds=+600).timestamp * 1000
 
-save_data(data, jobname, stime, etime)
+save_data(data, jobname, stime, etime, dataformat)
 print "finished"
