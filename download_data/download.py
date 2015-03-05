@@ -11,7 +11,7 @@ from dateutil.tz import tzutc
 jobname = sys.argv[1]
 service = 'api/pressure'
 
-FILTERING = minlat > -90 || maxlat < 90 || minlon > -180 || maxlon < 180
+FILTERING = minlat > -90 or maxlat < 90 or minlon > -180 or maxlon < 180
 
 def in_bounds(d):
     lat = float(d['latitude'])
@@ -24,7 +24,7 @@ def in_bounds(d):
     return ret
 
 def geo_filter(data):
-    return [d for d in data if (FILTERING and in_bounds(d))]
+    return [d for d in data if in_bounds(d)]
 
 def make_dirs(jobname):
     dname = 'data'
@@ -67,7 +67,8 @@ def make_call(params, data, t, jobname):
     if r.status_code == 200:
         data = success(r, data)
         print len(data)
-        data = geo_filter(data)
+        if FILTERING:
+            data = geo_filter(data)
         print len(data)
     else:
         print "an error occurred: " + str(r.status_code)
