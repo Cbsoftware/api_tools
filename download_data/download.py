@@ -26,13 +26,16 @@ def geo_filter(data):
     return [d for d in data if in_bounds(d)]
 
 def make_dirs(jobname):
+    cwd = os.getcwd()
+    path = os.path.dirname(__file__)
+
     dname = 'data'
-    if not os.path.exists(dname):
+    if not os.path.exists(os.path.join(cwd, dname)):
         os.makedirs(dname)
 
     #downloaded data will be stored in this directory
-    if not os.path.exists(os.path.join(dname, jobname)):
-        os.makedirs(os.path.join(dname, jobname))
+    if not os.path.exists(os.path.join(cwd, dname, jobname)):
+        os.makedirs(os.path.join(cwd, dname, jobname))
 
 def save_data(data, jobname, stime, etime, dataformat):
     dname = 'data'
@@ -65,7 +68,7 @@ def success(r, data):
   
     return data
 
-def make_call(params, data, t, jobname):
+def make_call(params, data, t, first):
     r = requests.get('https://pressurenet.io/' + service, params=params)
     print "Request made to " + r.url
     print arrow.get(str(params['timestamp']/1000)).format('MMMM-DD-YYYY:HH:mm:ss')
@@ -74,8 +77,11 @@ def make_call(params, data, t, jobname):
         data = success(r, data)
         if FILTERING:
             data = geo_filter(data)
+            print "{} items remaining after geo filtering".format(len(data))
     else:
         print "an error occurred: " + str(r.status_code)
+        if first:
+            data = make_call(params, data, t, False)
 
     return data
 
@@ -90,7 +96,7 @@ def download_stuff(jobname):
     data = []
     while(t < endtime):
         params = {'timestamp': t, 'api_key':apikey, 'format':dataformat}
-        data = make_call(params, data, t/1000, jobname)
+        data = make_call(params, data, t/1000, True)
         t = arrow.get(t / 1000).replace(seconds=+600).timestamp * 1000
 
     save_data(data, jobname, stime, etime, dataformat)
