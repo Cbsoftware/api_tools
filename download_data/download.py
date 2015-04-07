@@ -7,12 +7,13 @@ import requests
 import arrow, datetime, time
 from config import apikey, startsecond, startminute, starthour, startday, startmonth, startyear, endsecond, endminute, endhour, endday, endmonth, endyear, sleepamount, dataformat, minlat, maxlat, minlon, maxlon
 from dateutil.tz import tzutc 
+import csv
 
 service = 'api/pressure'
 
 FILTERING = minlat > -90 or maxlat < 90 or minlon > -180 or maxlon < 180
 
-def in_bounds(d):
+def in_bounds_json(d):
     lat = float(d['latitude'])
     lon = float(d['longitude'])
     fminlat = float(minlat)
@@ -22,8 +23,32 @@ def in_bounds(d):
     ret = (lat >= fminlat) & (lat <= fmaxlat) & (lon >= fminlon) & (lon <= fmaxlon)
     return ret
 
-def geo_filter(data):
-    return [d for d in data if in_bounds(d)]
+def in_bounds_csv(row):
+    latindex = 9
+    lonindex = 7
+    print row[latindex]
+    print row[lonindex]
+    lat = float(row[latindex])
+    lon = float(row[lonindex])
+    fminlat = float(minlat)
+    fmaxlat = float(maxlat)
+    fminlon = float(minlon)
+    fmaxlon = float(maxlon)
+    ret = (lat >= fminlat) & (lat <= fmaxlat) & (lon >= fminlon) & (lon <= fmaxlon)
+    return ret
+
+def geo_filter(data, dataformat):
+    if dataformat == 'json':
+      return [d for d in data if in_bounds_json(d)]
+    elif dataformat == 'csv':
+      rows = []
+      reader = csv.reader(data, quotechar='"')
+      for r in reader:
+          rows.append(r)
+
+      header = rows[0]
+      body = [r for r in rows[1:] if in_bounds_csv(r)]
+      return [header] + body
 
 def make_dirs(jobname):
     cwd = os.getcwd()
@@ -76,7 +101,7 @@ def make_call(params, data, t, first):
     if r.status_code == 200:
         data = success(r, data)
         if FILTERING:
-            data = geo_filter(data)
+            data = geo_filter(data, params['format'])
             print "{} items remaining after geo filtering".format(len(data))
     else:
         print "an error occurred: " + str(r.status_code)
